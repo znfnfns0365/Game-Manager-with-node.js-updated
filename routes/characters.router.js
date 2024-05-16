@@ -1,5 +1,6 @@
 import express from "express";
 import Characters from "../schemas/characters.schema.js";
+import Mountings from "../schemas/mounting.schema.js";
 
 const router = express.Router();
 
@@ -23,8 +24,14 @@ router.post("/character", async (req, res, next) => {
     health: 500,
     power: 100,
   });
-
   await newCharacter.save();
+
+  // Mountings에도 캐릭터 정보 추가
+  const newMounting = new Mountings({
+    character_id: id,
+    mountedItems: [],
+  });
+  await newMounting.save();
 
   return res.status(201).json({ newCharacter });
 });
@@ -39,10 +46,10 @@ router.get("/character/", async (req, res, next) => {
 /* 캐릭터 상세 조회 api */
 router.get("/character/:characterId", async (req, res, next) => {
   const characterId = req.params.characterId; // parameter 가져오기
-  const character = await Characters.findOne({ // character_id가 같은 객체 찾기
+  const character = await Characters.findOne({
+    // character_id가 같은 객체 찾기
     character_id: characterId,
-  })
-    .exec();
+  }).exec();
 
   if (!character) {
     // 없으면 에러 메시지
@@ -56,10 +63,10 @@ router.get("/character/:characterId", async (req, res, next) => {
 /* 캐릭터 삭제 api */
 router.delete("/character/:characterId", async (req, res, next) => {
   const characterId = req.params.characterId; // parameter 가져오기
-  const character = await Characters.findOne({ // character_id가 같은 객체 찾기
+  const character = await Characters.findOne({
+    // character_id가 같은 객체 찾기
     character_id: characterId,
-  })
-    .exec();
+  }).exec();
 
   if (!character) {
     // 없으면 에러 메시지
@@ -68,6 +75,9 @@ router.delete("/character/:characterId", async (req, res, next) => {
 
   const deleteId = character.character_id; // 객체의 id 불러와서
   await Characters.deleteOne({ character_id: deleteId }); // character_id가 같은 객체 삭제
+
+  // Mountings에도 캐릭터 정보 삭제
+  await Mountings.deleteMany({ character_id: deleteId });
 
   return res.status(200).json({ completeMessage: "삭제가 완료되었습니다." });
 });
