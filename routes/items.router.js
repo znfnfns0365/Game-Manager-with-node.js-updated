@@ -1,5 +1,6 @@
 import express from "express";
 import Items from "../schemas/items.schema.js";
+import Mountings from "../schemas/mounting.schema.js";
 
 const router = express.Router();
 
@@ -67,6 +68,25 @@ router.patch("/item/:itemCode", async (req, res, next) => {
   if (!item) {
     // 없으면 에러 메시지
     return res.status(404).json({ errorMessage: "수정할 아이템이 없습니다." });
+  }
+
+  // 장착하고 있는 캐릭터가 있다면 에러 메시지 출력
+  let mounting = false;
+  const mount = await Mountings.find().exec();
+  mount.forEach((obj) => {
+    const mounted = obj.mountedItems.find(function (arr) {
+      // 장착되어있는 item_code 아이템 불러오기
+      return arr.item_code == itemCode;
+    });
+    if (mounted) {
+      mounting = true;
+      return false;
+    }
+  });
+  if (mounting) {
+    return res
+      .status(400)
+      .json({ errorMessage: "아이템이 장착되어 있어 수정할 수 없습니다." });
   }
 
   item.item_name = item_name;
