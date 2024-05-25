@@ -3,11 +3,22 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "type": "module",
+  "scripts": {
+    "app": "nodemon src/app.js"
+  },
   "dependencies": {
+    "@prisma/client": "^5.14.0",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "mongoose": "^8.3.5",
-    "prettier": "^3.2.5"
+    "jsonwebtoken": "^9.0.2",
+    "prettier": "^3.2.5",
+    "prisma": "^5.14.0"
+  },
+  "repository": "https://github.com/znfnfns0365/Game-Manager-with-node.js-updated.git",
+  "author": "znfnfns0365 <znfnfns0365@naver.com>",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }
