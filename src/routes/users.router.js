@@ -58,7 +58,7 @@ router.post("/sign-in", async (req, res, next) => {
     {
       userId: user.userId,
     },
-    "It's the Secret Key of Kim-Dong-Heon's item_simulator_updated version!!",
+    process.env.JWT_KEY,
     { expiresIn: "1h" }
   );
 

@@ -10,10 +10,7 @@ module.exports = async function (req, res, next) {
     if (tokenType !== "Bearer")
       throw new Error("토큰 타입이 일치하지 않습니다.");
 
-    const decodedToken = jwt.verify(
-      token,
-      "It's the Secret Key of Kim-Dong-Heon's item_simulator_updated version!!"
-    );
+    const decodedToken = jwt.verify(token, process.env.JWT_KEY);
     const userId = +decodedToken.userId;
 
     if (!userId) {

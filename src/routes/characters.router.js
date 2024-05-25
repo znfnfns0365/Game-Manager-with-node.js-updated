@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const { userPrisma } = require("../utils/prisma/index.js");
 const authMiddleware = require("../middleware/auth.middleware");
+const dotenv = require("dotenv");
 
 const router = express.Router();
 const Characters = userPrisma.characters;
@@ -77,10 +78,7 @@ router.get("/character/:characterId", async (req, res, next) => {
     if (!authorization) return 0;
     const [tokenType, token] = authorization.split(" ");
     if (tokenType !== "Bearer") return 0;
-    const decodedToken = jwt.verify(
-      token,
-      "It's the Secret Key of Kim-Dong-Heon's item_simulator_updated version!!"
-    );
+    const decodedToken = jwt.verify(token, process.env.JWT_KEY);
     const userId = +decodedToken.userId;
     if (!userId) {
       return 0;
