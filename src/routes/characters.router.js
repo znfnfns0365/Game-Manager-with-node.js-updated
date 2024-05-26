@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 
 const router = express.Router();
 const Characters = userPrisma.characters;
+const MountedItems = userPrisma.mountedItems;
 
 /* 캐릭터 생성 api */
 router.post("/character", authMiddleware, async (req, res, next) => {
@@ -35,11 +36,12 @@ router.post("/character", authMiddleware, async (req, res, next) => {
   });
 
   // Mountings에도 캐릭터 정보 추가
-  // const newMounting = new Mountings({
-  //   character_id: id,
-  //   mountedItems: [],
-  // });
-  // await newMounting.save();
+  await MountedItems.create({
+    data: {
+      CharacterId: newCharacter.characterId,
+      items: [],
+    },
+  });
 
   return res
     .status(201)
