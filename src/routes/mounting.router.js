@@ -43,20 +43,15 @@ router.patch("/mounting/:characterId", authMiddleware, async (req, res) => {
     },
   });
   if (!character) {
-    return res.status(404).json({ errorMessage: "캐릭터를 찾을 수 없습니다." });
+    return res
+      .status(404)
+      .json({ errorMessage: "아이템을 장착할 캐릭터가 없습니다." });
   }
 
-  // mountedItems가 존재하는지 검사
   const mounting = await MountedItems.findFirst({
     // characterId가 같은 객체 찾기 (MountedItems 모듈에서)
     where: { CharacterId: +characterId },
   });
-  if (!mounting) {
-    // 없으면 에러 메시지
-    return res
-      .status(404)
-      .json({ errorMessage: "없을리가 없는데 장착된 목록이 없습니다." });
-  }
 
   // 아이템 코드가 존재하는지 검사
   const { item_code } = req.body; // 장착할 아이템 갸져오기
@@ -68,7 +63,7 @@ router.patch("/mounting/:characterId", authMiddleware, async (req, res) => {
     // 없으면 에러 메시지
     return res
       .status(404)
-      .json({ errorMessage: "아이템 코드가 존재하지 않습니다." });
+      .json({ errorMessage: "장착할 아이템이 존재하지 않습니다." });
   }
 
   // 같은 타입 아이템이 장착되어 있는지 확인
@@ -94,18 +89,6 @@ router.patch("/mounting/:characterId", authMiddleware, async (req, res) => {
     return res
       .status(400)
       .json({ errorMessage: "인벤토리에 아이템이 존재하지 않습니다." });
-  }
-
-  // 같은 아이템이 있는지 검사
-  const mountedItems = mounting.items;
-  const sameItem = mountedItems.find(function (obj) {
-    return obj.itemCode === +item_code;
-  });
-  if (sameItem) {
-    // 이미 장착되어 있다면 에러 출력
-    return res
-      .status(400)
-      .json({ errorMessage: "아이템이 이미 장착되어 있습니다." });
   }
 
   // MountedItems에 아이템 추가
@@ -168,20 +151,15 @@ router.patch("/detachable/:characterId", authMiddleware, async (req, res) => {
     },
   });
   if (!character) {
-    return res.status(404).json({ errorMessage: "캐릭터를 찾을 수 없습니다." });
+    return res
+      .status(404)
+      .json({ errorMessage: "아이템을 탈착할 캐릭터가 없습니다." });
   }
 
-  // mountedItems가 존재하는지 검사
   const mounting = await MountedItems.findFirst({
     // characterId가 같은 객체 찾기 (MountedItems 모듈에서)
     where: { CharacterId: +characterId },
   });
-  if (!mounting) {
-    // 없으면 에러 메시지
-    return res
-      .status(404)
-      .json({ errorMessage: "없을리가 없는데 장착된 목록이 없습니다." });
-  }
 
   // 아이템 코드가 존재하는지 검사
   const { item_code } = req.body; // 장착할 아이템 갸져오기
@@ -193,7 +171,7 @@ router.patch("/detachable/:characterId", authMiddleware, async (req, res) => {
     // 없으면 에러 메시지
     return res
       .status(404)
-      .json({ errorMessage: "아이템 코드가 존재하지 않습니다." });
+      .json({ errorMessage: "탈착할 아이템이 존재하지 않습니다." });
   }
 
   // 아이템이 장착되어 있는지 확인

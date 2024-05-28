@@ -83,8 +83,8 @@ router.get("/character/:characterId", async (req, res, next) => {
 
   let userCheck = () => {
     // 로그인 하지 않았으면 0 아니면 id return
-    // const { authorization } = req.headers;
-    const { authorization } = req.cookies; // 일단 쿠키로 전달받고 제출전에 headers로 변경
+    const { authorization } = req.headers;
+    // const { authorization } = req.cookies; // 일단 쿠키로 전달받고 제출전에 headers로 변경
     if (!authorization) return 0;
     const [tokenType, token] = authorization.split(" ");
     if (tokenType !== "Bearer") return 0;
@@ -130,19 +130,19 @@ router.delete(
         characterId: characterId,
       },
     });
+    if (!character) {
+      // 없으면 에러 메시지
+      return res
+        .status(404)
+        .json({ errorMessage: "삭제할 캐릭터가 없습니다." });
+    }
+
     const name = character.name;
     if (character.UserId !== user.userId) {
       // 다른 유저의 캐릭터 삭제 시도
       return res
         .status(404)
         .json({ errorMessage: "다른 사용자의 캐릭터입니다." });
-    }
-
-    if (!character) {
-      // 없으면 에러 메시지
-      return res
-        .status(404)
-        .json({ errorMessage: "삭제할 캐릭터가 없습니다." });
     }
 
     await Characters.delete({

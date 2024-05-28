@@ -3,8 +3,8 @@ const { userPrisma } = require("../utils/prisma/index.js");
 
 module.exports = async function (req, res, next) {
   try {
-    // const { authorization } = req.headers;
-    const { authorization } = req.cookies; // 일단 쿠키로 전달받고 제출전에 headers로 변경
+    const { authorization } = req.headers;
+    // const { authorization } = req.cookies; // 일단 쿠키로 전달받고 제출전에 headers로 변경
     const [tokenType, token] = authorization.split(" ");
 
     if (tokenType !== "Bearer")

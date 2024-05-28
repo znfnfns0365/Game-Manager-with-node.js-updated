@@ -58,7 +58,7 @@ router.post("/item", async (req, res, next) => {
 });
 
 /* 아이템 목록 조회 api */
-router.get("/item/", async (req, res, next) => {
+router.get("/store", async (req, res, next) => {
   let itemList = await Items.findMany({
     select: {
       itemCode: true,

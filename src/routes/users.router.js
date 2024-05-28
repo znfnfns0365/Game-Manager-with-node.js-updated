@@ -62,8 +62,11 @@ router.post("/sign-in", async (req, res, next) => {
     { expiresIn: "1h" }
   );
 
-  res.cookie("authorization", `Bearer ${token}`); // 일단 쿠키로 전달하고 제출 전에 주석처리
-  return res.status(200).json({ message: "로그인 성공했습니다.", token });
+  // res.cookie("authorization", `Bearer ${token}`); // 일단 쿠키로 전달하고 제출 전에 주석처리
+  return res.status(200).json({
+    message: "로그인 성공했습니다.",
+    authorization: `Bearer ${token}`,
+  });
 });
 
 /* 회원 탈퇴 API */
