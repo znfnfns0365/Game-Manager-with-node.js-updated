@@ -29,7 +29,7 @@ router.get("/mounting/:characterId", async (req, res, next) => {
     return 0;
   });
 
-  return res.status(200).json(mounting.items);
+  return res.status(200).json(mounting.mountingLocation);
 });
 
 /* 아이템 장착 api */
@@ -71,16 +71,14 @@ router.patch("/mounting/:characterId", authMiddleware, async (req, res) => {
       .json({ errorMessage: "아이템 코드가 존재하지 않습니다." });
   }
 
-  // 같은 아이템이 장착되어 있는지 확인
-  const mountedItems = mounting.items;
-  const sameItem = mountedItems.find(function (obj) {
-    return obj.itemCode === +item_code;
-  });
-  if (sameItem) {
+  // 같은 타입 아이템이 장착되어 있는지 확인
+  let mountingLocation = mounting.mountingLocation;
+  const sameType = mountingLocation[item.itemType];
+  if (sameType) {
     // 이미 장착되어 있다면 에러 출력
     return res
       .status(400)
-      .json({ errorMessage: "아이템이 이미 장착되어 있습니다." });
+      .json({ errorMessage: "동일한 아이템 타입이 장착되어 있습니다." });
   }
 
   // 아이템이 inventory에 존재하는지 검사
@@ -98,17 +96,31 @@ router.patch("/mounting/:characterId", authMiddleware, async (req, res) => {
       .json({ errorMessage: "인벤토리에 아이템이 존재하지 않습니다." });
   }
 
+  // 같은 아이템이 있는지 검사
+  const mountedItems = mounting.items;
+  const sameItem = mountedItems.find(function (obj) {
+    return obj.itemCode === +item_code;
+  });
+  if (sameItem) {
+    // 이미 장착되어 있다면 에러 출력
+    return res
+      .status(400)
+      .json({ errorMessage: "아이템이 이미 장착되어 있습니다." });
+  }
+
   // MountedItems에 아이템 추가
-  const { name, itemStat } = item;
+  const { name, itemStat, itemType } = item;
   mountedItems.push({
     // item 목록에 장착할 item 추가
     itemCode: item_code,
     name,
   });
+  mountingLocation[itemType] = name;
   await MountedItems.update({
     // db에 업데이트
     data: {
       items: mountedItems,
+      mountingLocation,
     },
     where: {
       CharacterId: characterId,
@@ -200,11 +212,13 @@ router.patch("/detachable/:characterId", authMiddleware, async (req, res) => {
   mountedItems = mountedItems.filter((val) => {
     return val.itemCode !== item_code;
   });
-  console.log(mountedItems);
+  let mountingLocation = mounting.mountingLocation;
+  mountingLocation[item.itemType] = false;
   await MountedItems.update({
     // db에 업데이트
     data: {
       items: mountedItems,
+      mountingLocation,
     },
     where: {
       CharacterId: characterId,

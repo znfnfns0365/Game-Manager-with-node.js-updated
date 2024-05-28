@@ -1,11 +1,12 @@
 const express = require("express");
-const { itemPrisma } = require("../utils/prisma/index.js");
+const { itemPrisma, userPrisma } = require("../utils/prisma/index.js");
 
 const router = express.Router();
 const Items = itemPrisma.items;
+const MountedItems = userPrisma.mountedItems;
 /* 아이템 생성 api */
 router.post("/item", async (req, res, next) => {
-  const { item_name, item_code, item_stat, item_price } = req.body;
+  const { item_name, item_code, item_stat, item_price, item_type } = req.body;
 
   const sameName = await Items.findFirst({
     where: {
@@ -31,12 +32,25 @@ router.post("/item", async (req, res, next) => {
       .json({ errorMessage: "동일한 item_code의 아이템이 존재합니다" });
   }
 
+  // itemType이 유효한 지 검사
+  console.log(item_type);
+  if (
+    !["hat", "armor", "pants", "shoes", "accessories", "weapon"].includes(
+      item_type.toLowerCase()
+    )
+  ) {
+    return res
+      .status(400)
+      .json({ errorMessage: "아이템 타입이 유효하지 않습니다" });
+  }
+
   const newItem = await Items.create({
     data: {
       itemCode: item_code,
       name: item_name,
       itemStat: item_stat,
       cost: item_price,
+      itemType: item_type.toLowerCase(),
     },
   });
 
@@ -79,12 +93,13 @@ router.get("/item/:itemCode", async (req, res, next) => {
     return res.status(404).json({ errorMessage: "조회할 아이템이 없습니다." });
   }
 
-  const { itemCode, name, itemStat, cost } = item; // 출력할 정보들 구조 분해 할당
+  const { itemCode, name, itemStat, cost, itemType } = item; // 출력할 정보들 구조 분해 할당
   return res.status(200).json({
     item_code: itemCode,
     item_name: name,
     item_stat: itemStat,
     item_price: cost,
+    item_type: itemType,
   });
 });
 
@@ -101,24 +116,25 @@ router.patch("/item/:itemCode", async (req, res, next) => {
     // 없으면 에러 메시지
     return res.status(404).json({ errorMessage: "수정할 아이템이 없습니다." });
   }
+
   // 장착하고 있는 캐릭터가 있다면 에러 메시지 출력
-  // let mounting = false;
-  // const mount = await Mountings.find().exec();
-  // mount.forEach((obj) => {
-  //   const mounted = obj.mountedItems.find(function (arr) {
-  //     // 장착되어있는 item_code 아이템 불러오기
-  //     return arr.item_code == itemCode;
-  //   });
-  //   if (mounted) {
-  //     mounting = true;
-  //     return false;
-  //   }
-  // });
-  // if (mounting) {
-  //   return res
-  //     .status(400)
-  //     .json({ errorMessage: "아이템이 장착되어 있어 수정할 수 없습니다." });
-  // }
+  let mounting = false;
+  const mount = await MountedItems.findMany();
+  mount.forEach((obj) => {
+    const mounted = obj.items.find(function (arr) {
+      // 장착되어있는 item_code 아이템 불러오기
+      return arr.itemCode == itemCode;
+    });
+    if (mounted) {
+      mounting = true;
+      return false;
+    }
+  });
+  if (mounting) {
+    return res
+      .status(400)
+      .json({ errorMessage: "아이템이 장착되어 있어 수정할 수 없습니다." });
+  }
 
   await Items.update({
     data: {

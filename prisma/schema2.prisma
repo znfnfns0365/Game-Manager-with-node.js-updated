@@ -14,7 +14,7 @@ model Items{
   name String @map("name")
   itemStat Json @map("itemStat")
   cost Int @map("cost")
-  mountingLocation String? @map("mountingLocation")
+  itemType String @map("itemType")
 
   @@map("Items")
 }

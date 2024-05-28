@@ -40,6 +40,14 @@ router.post("/character", authMiddleware, async (req, res, next) => {
     data: {
       CharacterId: newCharacter.characterId,
       items: [],
+      mountingLocation: {
+        hat: false,
+        armor: false,
+        pants: false,
+        shoes: false,
+        accessories: false,
+        weapon: false,
+      },
     },
   });
 
