@@ -93,6 +93,7 @@ router.patch("/mounting/:characterId", authMiddleware, async (req, res) => {
 
   // MountedItems에 아이템 추가
   const { name, itemStat, itemType } = item;
+  let mountedItems = mounting.items;
   mountedItems.push({
     // item 목록에 장착할 item 추가
     itemCode: item_code,
